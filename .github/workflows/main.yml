@@ -1,0 +1,64 @@
+# 工作流名称
+name: Deploy Next.js to GitHub Pages
+
+# 触发条件：当代码推送到 main 分支时
+on:
+  push:
+    branches:
+      - master # 或者你的主分支名，如 master
+  workflow_dispatch: # 允许手动触发
+
+# 权限设置：允许此工作流写入部署内容
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 作业
+jobs:
+  build:
+    runs-on: ubuntu-latest # 在最新的 Ubuntu 环境中运行
+
+    steps:
+      # 1. 检出代码
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. 设置 Node.js 环境
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20" # 使用与你项目兼容的 Node.js 版本
+          cache: 'npm' # 缓存 npm 依赖
+
+      # 3. 安装依赖
+      - name: Install dependencies
+        run: npm ci
+
+      # 4. 构建项目
+      # NEXT_PUBLIC_BASE_PATH 环境变量是为了让 next.config.js 能动态获取仓库名
+      - name: Build
+        run: npm run build
+        env:
+          # 如果你在 next.config.js 中硬编码了仓库名，就不需要这个环境变量
+          # 但动态设置更灵活
+          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
+
+      # 5. 上传构建产物
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./out # 指定 Next.js 静态导出的文件夹
+
+  deploy:
+    needs: build # 依赖 build 作业成功完成
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }} # 输出部署后的 URL
+
+    steps:
+      # 部署到 GitHub Pages
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
