@@ -5,7 +5,7 @@ name: Deploy Next.js to GitHub Pages
 on:
   push:
     branches:
-      - master # 或者你的主分支名，如 master
+      - main # 或者你的主分支名，如 master
   workflow_dispatch: # 允许手动触发
 
 # 权限设置：允许此工作流写入部署内容
