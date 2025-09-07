@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
 	 *
 	 * @see https://nextjs.org/docs/app/api-reference/next-config-js/basePath
 	 */
-	basePath: '/nextjs-github-pages',
+	// basePath: '/nextjs-github-pages',
 
 	/**
 	 * 禁用基于服务器的图像优化。Next.js不支持
